@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แคตตาล็อกเช่าหนังสือนิยาย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* นำเข้าฟอนต์ Bai Jamjuree และตั้งค่าขนาดให้อ่านง่ายสบายตา */
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap');
+        body { 
+            font-family: 'Bai Jamjuree', sans-serif; 
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body class="bg-blue-50 min-h-screen p-4 py-8">
+    
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-blue-600 text-white p-6 text-center relative">
+            <h1 class="text-2xl font-semibold mb-1">สารบัญหนังสือนิยายให้เช่า</h1>
+            <p class="text-sm opacity-90">ค้นหาเรื่องที่ชอบ แล้วกดทักแชท Facebook ได้เลยค่ะ</p>
+        </div>
+        
+        <div class="p-6">
+            <!-- แถบกรองหมวดหมู่ -->
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="py-2 text-gray-600 font-medium mr-2">หมวดหมู่:</span>
+                <button onclick="renderBooks('ทั้งหมด')" class="px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full font-medium hover:bg-blue-200 transition">ทั้งหมด</button>
+                <button onclick="renderBooks('ชายหญิง')" class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 transition">ชายหญิง</button>
+                <button onclick="renderBooks('วาย')" class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 transition">วาย</button>
+            </div>
+
+            <!-- ตารางรายการหนังสือ (สลับสีบรรทัด) -->
+            <div class="overflow-x-auto rounded-xl border border-gray-200">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="p-4 font-semibold text-gray-700 w-24">รหัส</th>
+                            <th class="p-4 font-semibold text-gray-700">ชื่อเรื่อง</th>
+                            <th class="p-4 font-semibold text-gray-700">ผู้แต่ง / สนพ.</th>
+                            <th class="p-4 font-semibold text-gray-700">หมวดหมู่</th>
+                            <th class="p-4 font-semibold text-gray-700 text-center">จำนวนเล่ม</th>
+                            <th class="p-4 font-semibold text-gray-700 text-center w-32">ทำรายการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookTableBody">
+                        <!-- รายการหนังสือจะถูกดึงมาแสดงที่นี่ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Pop-up คัดลอกข้อความก่อนไป Facebook) -->
+    <div id="fbModal" class="fixed inset-0 w-full h-full z-50 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black opacity-60" onclick="closeModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="bg-blue-50 p-4 border-b border-blue-100 flex items-center gap-3">
+                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.145 2 11.259c0 2.92 1.488 5.485 3.792 7.147.243.176.4.459.426.758l.175 2.013c.036.417.493.639.825.401l2.42-1.745c.196-.142.434-.207.674-.188 5.212.41 9.688-3.415 9.688-8.386C22 6.145 17.523 2 12 2z"/></svg>
+                <h2 class="text-lg font-bold text-blue-800">เตรียมข้อความให้แล้วค่ะ</h2>
+            </div>
+            
+            <div class="p-5">
+                <p class="text-sm text-gray-600 mb-3">กดปุ่มด้านล่างเพื่อคัดลอกข้อความ แล้วนำไป **วาง (Paste)** ในช่องแชทได้เลยค่ะ</p>
+                <textarea id="orderText" readonly class="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm text-gray-700 h-28 focus:outline-none resize-none"></textarea>
+            </div>
+            
+            <div class="p-4 bg-gray-50 border-t flex gap-2">
+                <button onclick="closeModal()" class="flex-1 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-100 transition">ยกเลิก</button>
+                <button onclick="copyAndGoToFB()" class="flex-1 bg-blue-600 text-white font-medium py-2.5 rounded-lg hover:bg-blue-700 transition shadow flex items-center justify-center gap-2">
+                    คัดลอก & ไปที่แชท
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ฐานข้อมูลหนังสือนิยาย (สามารถเพิ่ม/แก้ไขรายการตรงนี้ได้เลย)
+        const books = [
+            { code: "N001", title: "พรหมลิขิต", author: "รอมแพง", publisher: "แฮปปี้บานาน่า", category: "ชายหญิง", volumes: "เล่มเดียวจบ" },
+            { code: "N002", title: "คิวปิดหัวใจรัก", author: "ไม่ทราบชื่อ", publisher: "แจ่มใส", category: "ชายหญิง", volumes: "เล่มเดียวจบ" },
+            { code: "Y001", title: "นิทานพันดาว", author: "Bacteria", publisher: "เอเวอร์วาย", category: "วาย", volumes: "2 เล่มจบ" },
+            { code: "Y002", title: "เพราะเราคู่กัน", author: "JittiRain", publisher: "เอเวอร์วาย", category: "วาย", volumes: "4 เล่มจบ" },
+            { code: "N003", title: "ดั่งดวงหฤทัย", author: "ทมยันตี", publisher: "ณ บ้านวรรณกรรม", category: "ชายหญิง", volumes: "2 เล่มจบ" }
+        ];
+
+        const tbody = document.getElementById('bookTableBody');
+        const modal = document.getElementById('fbModal');
+        const orderTextArea = document.getElementById('orderText');
+
+        // ฟังก์ชันดึงหนังสือมาแสดง และสลับสีบรรทัด (ขาว / เทาอ่อน)
+        function renderBooks(filterCategory) {
+            tbody.innerHTML = '';
+            let filteredBooks = books;
+            
+            if (filterCategory !== 'ทั้งหมด') {
+                filteredBooks = books.filter(b => b.category === filterCategory);
+            }
+
+            filteredBooks.forEach((book, index) => {
+                // สลับสีบรรทัดแบบ Excel
+                const bgClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                
+                // จัดสไตล์ป้ายหมวดหมู่
+                const tagColor = book.category === 'วาย' ? 'bg-purple-100 text-purple-700' : 'bg-pink-100 text-pink-700';
+
+                const tr = document.createElement('tr');
+                tr.className = `${bgClass} hover:bg-blue-50 transition border-b border-gray-100`;
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-blue-600 font-medium">${book.code}</td>
+                    <td class="p-4 font-medium text-gray-800">${book.title}</td>
+                    <td class="p-4 text-gray-600 text-sm">${book.author} <br> <span class="text-xs text-gray-400">${book.publisher}</span></td>
+                    <td class="p-4"><span class="px-2.5 py-1 text-xs rounded-full ${tagColor}">${book.category}</span></td>
+                    <td class="p-4 text-center text-sm text-gray-600">${book.volumes}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="openModal('${book.code}', '${book.title}', '${book.volumes}')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm transition">
+                            สนใจเช่า
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // แสดงผลครั้งแรกเมื่อเปิดเว็บ
+        renderBooks('ทั้งหมด');
+
+        // ฟังก์ชันเปิด Modal เตรียมข้อความ
+        function openModal(code, title, volumes) {
+            const message = `สนใจเช่าหนังสือนิยายค่ะ\nรหัส: ${code}\nเรื่อง: ${title}\n(${volumes})\n\nรบกวนเช็คคิวว่างให้หน่อยนะคะ`;
+            orderTextArea.value = message;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // ฟังก์ชันปิด Modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ฟังก์ชันคัดลอกข้อความและเปิด Facebook Messenger
+        function copyAndGoToFB() {
+            // 1. คัดลอกข้อความ
+            orderTextArea.select();
+            document.execCommand('copy');
+            
+            // 2. แจ้งเตือนสั้นๆ
+            alert("คัดลอกข้อความแล้ว! ระบบกำลังพาไปที่แชท กด 'วาง (Paste)' ข้อความส่งได้เลยค่ะ");
+            
+            // 3. เปิดลิงก์ m.me ของเฟซบุ๊กที่ระบุ
+            const fbLink = "https://m.me/fai.mintra.856968";
+            window.location.href = fbLink;
+            closeModal();
+        }
+    </script>
+</body>
+</html>
