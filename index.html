@@ -6,7 +6,7 @@
     <title>ร้านเช่าหนังสือนิยาย</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap');
         body { 
             font-family: 'Bai Jamjuree', sans-serif; 
             background-color: #f8fafc;
@@ -14,27 +14,90 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* สลับสีบรรทัดในตะกร้าสินค้า */
         .cart-item:nth-child(even) { background-color: #f8fafc; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-20">
 
-    <!-- แถบนำทางด้านบน & ปุ่มตะกร้า -->
-    <nav class="bg-indigo-600 text-white p-4 sticky top-0 z-30 shadow-md">
+    <!-- แถบนำทางด้านบน -->
+    <nav class="bg-indigo-700 text-white p-4 sticky top-0 z-30 shadow-md">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-semibold">📚 นิยายให้เช่า</h1>
-            <button onclick="openCart()" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-50 transition shadow-sm flex items-center gap-2">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold tracking-wide">📚 NOVEL RENT</h1>
+                <!-- เมนูสลับหน้า (สำหรับจอคอม) -->
+                <div class="hidden md:flex gap-2">
+                    <button onclick="switchTab('home')" id="tab-home-desktop" class="px-3 py-1.5 rounded-lg bg-indigo-800 font-medium transition">หน้าแรก</button>
+                    <button onclick="switchTab('catalog')" id="tab-catalog-desktop" class="px-3 py-1.5 rounded-lg hover:bg-indigo-600 font-medium transition">แคตตาล็อก</button>
+                </div>
+            </div>
+            
+            <button onclick="openCart()" class="bg-white text-indigo-700 px-4 py-2 rounded-lg font-bold hover:bg-indigo-50 transition shadow-sm flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                ตะกร้า (<span id="cartCount">0</span>)
+                <span id="cartCount" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">0</span>
             </button>
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4 mt-6">
+    <!-- เมนูสลับหน้า (สำหรับมือถือ ลอยอยู่ด้านล่าง) -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-20 flex justify-around p-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('home')" id="tab-home-mobile" class="flex flex-col items-center p-2 text-indigo-700 w-1/2">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span class="text-xs font-bold">หน้าแรก</span>
+        </button>
+        <button onclick="switchTab('catalog')" id="tab-catalog-mobile" class="flex flex-col items-center p-2 text-gray-400 w-1/2">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <span class="text-xs font-bold">แคตตาล็อก</span>
+        </button>
+    </div>
+
+    <!-- ================= ส่วนที่ 1: หน้าแรก (Home View) ================= -->
+    <div id="homeView" class="max-w-6xl mx-auto px-4 mt-6 block">
         
-        <!-- แถบหมวดหมู่ -->
+        <!-- แบนเนอร์โปรโมชัน -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 sm:p-10 text-white shadow-lg mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block shadow-sm">PROMOTION</span>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2">โปรเช่าคละเรื่องสุดคุ้ม! 📚</h2>
+                <p class="opacity-90 mb-4 max-w-md">เช่า 1-4 เล่ม คิดเล่มละ 35 บาท <br> <span class="font-bold text-yellow-300">พิเศษ! เช่า 5 เล่มขึ้นไป เหมาเพียง 150 บาท</span> (ตกเล่มละ 30.-)</p>
+                <div class="text-sm bg-white/20 inline-block px-4 py-2 rounded-lg backdrop-blur-sm border border-white/30">
+                    ⏳ ระยะเวลาเช่า 15 วัน นับจากวันรับของ
+                </div>
+            </div>
+            <!-- วงกลมตกแต่งแบนเนอร์ -->
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <div class="absolute top-10 right-20 w-20 h-20 bg-white opacity-10 rounded-full blur-xl"></div>
+        </div>
+
+        <!-- Section: มาใหม่ล่าสุด -->
+        <div class="mb-8">
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <span class="text-2xl">✨</span> มาใหม่ล่าสุด
+                </h3>
+                <button onclick="switchTab('catalog')" class="text-sm text-indigo-600 font-medium hover:underline">ดูทั้งหมด</button>
+            </div>
+            <div id="newArrivalsRow" class="flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x">
+                <!-- ดึงข้อมูลแนวนอนมาใส่ -->
+            </div>
+        </div>
+
+        <!-- Section: กำลังฮิต -->
+        <div class="mb-8">
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <span class="text-2xl">🔥</span> ฮิตประจำสัปดาห์
+                </h3>
+            </div>
+            <div id="trendingRow" class="flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x">
+                <!-- ดึงข้อมูลแนวนอนมาใส่ -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ส่วนที่ 2: แคตตาล็อก (Catalog View) ================= -->
+    <div id="catalogView" class="max-w-6xl mx-auto px-4 mt-6 hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">ค้นหาหนังสือนิยาย</h2>
+        <!-- แถบตัวกรองหมวดหมู่ -->
         <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 border-b border-gray-200">
             <button onclick="filterBooks('ทั้งหมด')" id="btn-ทั้งหมด" class="category-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-indigo-700 text-white font-medium transition">ทั้งหมด</button>
             <button onclick="filterBooks('1 เล่มจบ')" id="btn-1 เล่มจบ" class="category-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition">1 เล่มจบ</button>
@@ -43,16 +106,16 @@
             <button onclick="filterBooks('BL')" id="btn-BL" class="category-btn whitespace-nowrap px-4 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition">หมวด BL (วาย)</button>
         </div>
 
-        <!-- รายการหนังสือ -->
+        <!-- รายการหนังสือแบบ Grid -->
         <div id="bookGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <!-- ข้อมูลจะถูกดึงมาใส่ตรงนี้ -->
         </div>
-
     </div>
 
+    <!-- ================= Modals (เหมือนเดิม) ================= -->
     <!-- Modal 1: ดูรายละเอียดและหยิบใส่ตะกร้า -->
     <div id="bookModal" class="fixed inset-0 w-full h-full z-40 hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black opacity-60" onclick="closeBookModal()"></div>
+        <div class="absolute inset-0 bg-black opacity-60 backdrop-blur-sm" onclick="closeBookModal()"></div>
         <div class="relative bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden flex flex-col max-h-[90vh]">
             <button onclick="closeBookModal()" class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 z-10">✕</button>
             
@@ -72,12 +135,9 @@
                     </div>
                 </div>
 
-                <!-- ตัวเลือกการเช่า -->
                 <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-4">
                     <h3 class="font-semibold text-indigo-800 mb-3 text-sm">ตัวเลือกการเช่า</h3>
-                    <div class="space-y-3" id="rentalOptionsContainer">
-                        <!-- จะสร้าง Radio/Checkbox อัตโนมัติตามจำนวนเล่ม -->
-                    </div>
+                    <div class="space-y-3" id="rentalOptionsContainer"></div>
                 </div>
             </div>
             
@@ -90,19 +150,15 @@
 
     <!-- Modal 2: หน้าต่างตะกร้าสินค้า (Cart) -->
     <div id="cartModal" class="fixed inset-0 w-full h-full z-50 hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black opacity-60" onclick="closeCart()"></div>
+        <div class="absolute inset-0 bg-black opacity-60 backdrop-blur-sm" onclick="closeCart()"></div>
         <div class="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+            <div class="bg-indigo-700 text-white p-4 flex justify-between items-center">
                 <h2 class="text-lg font-bold">🛒 ตะกร้าของฉัน</h2>
                 <button onclick="closeCart()" class="text-white hover:text-indigo-200">✕</button>
             </div>
             
-            <!-- รายการในตะกร้า -->
-            <div class="p-0 overflow-y-auto no-scrollbar flex-grow bg-white min-h-[150px]" id="cartItemsContainer">
-                <!-- สินค้าในตะกร้าจะมาแสดงที่นี่ -->
-            </div>
+            <div class="p-0 overflow-y-auto no-scrollbar flex-grow bg-white min-h-[150px]" id="cartItemsContainer"></div>
             
-            <!-- สรุปโปรโมชันและยอด -->
             <div class="p-4 bg-gray-50 border-t border-gray-200">
                 <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
                     <p class="font-semibold text-green-800 mb-1">🎉 โปรโมชันเช่าคละเรื่อง</p>
@@ -111,7 +167,7 @@
                 </div>
                 
                 <div class="flex justify-between items-end mb-4 px-2">
-                    <span class="text-gray-700 font-medium">รวมจำนวน <span id="totalBooksCount" class="font-bold text-indigo-600">0</span> เล่ม</span>
+                    <span class="text-gray-700 font-medium">รวม <span id="totalBooksCount" class="font-bold text-indigo-600 text-lg">0</span> เล่ม</span>
                     <div class="text-right">
                         <p class="text-xs text-gray-500 mb-1">ยอดประเมินค่าเช่า</p>
                         <p class="text-2xl font-bold text-indigo-700"><span id="totalPrice">0</span> ฿</p>
@@ -127,25 +183,98 @@
     </div>
 
     <script>
-        // ฐานข้อมูลหนังสือ (ตรงตามตาราง Google Sheets ของคุณ)
-        // isOngoing = กำลังออกยังไม่จบ, totalVols = จำนวนเล่มทั้งหมด (หรือจำนวนเล่มล่าสุดที่ออก)
+        // ข้อมูลหนังสือ (ใส่ Tag 'มาใหม่' หรือ 'ฮิต' เพื่อให้ไปโชว์ที่หน้าแรก)
         const books = [
             { code: "FM1001", title: "My Dear Boss ก็บอกแล้วไงว่าไม่ชอบอันธพาล", author: "Lady-n", publisher: "Rose", category: "BL", tags: ["โรแมนติก 18+", "มาใหม่"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop" },
-            { code: "FM1002", title: "His Honey เลือก(มาก)นักรักซะให้เข็ด", author: "เขียนสือจิ่ว", publisher: "EverY", category: "BL", tags: ["โรแมนติก 18+"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=450&fit=crop" },
-            { code: "FM1003", title: "Fourth Wing", author: "Rebecca Yarros", publisher: "words publishing", category: "โรแมนซ์", tags: ["แฟนตาซี"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=450&fit=crop" },
-            { code: "FM1004", title: "เอเดรียน อิงลิช กับคดีเงาแค้นปริศนา", author: "Josh Lanyon", publisher: "Gemini publishing", category: "BL", tags: ["สืบสวน 18+"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop" },
+            { code: "FM1002", title: "His Honey เลือก(มาก)นักรักซะให้เข็ด", author: "เขียนสือจิ่ว", publisher: "EverY", category: "BL", tags: ["โรแมนติก 18+", "ฮิต"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=450&fit=crop" },
+            { code: "FM1003", title: "Fourth Wing", author: "Rebecca Yarros", publisher: "words publishing", category: "โรแมนซ์", tags: ["แฟนตาซี", "ฮิต"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=450&fit=crop" },
+            { code: "FM1004", title: "เอเดรียน อิงลิช กับคดีเงาแค้นปริศนา", author: "Josh Lanyon", publisher: "Gemini publishing", category: "BL", tags: ["สืบสวน 18+", "มาใหม่"], volumesText: "1 เล่มจบ", totalVols: 1, isOngoing: false, cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop" },
             { code: "FM2001", title: "สวรรค์ประทานพร", author: "โม่เซียงถงซิ่ว", publisher: "Sense Book", category: "BL", tags: ["แฟนตาซี", "ฮิต"], volumesText: "ล่าสุดเล่ม 4 (ยังไม่จบ)", totalVols: 4, isOngoing: true, cover: "https://images.unsplash.com/photo-1587876931567-564ce588bfbd?w=300&h=450&fit=crop" },
-            { code: "FM2002", title: "นิทานพันดาว", author: "Bacteria", publisher: "EverY", category: "BL", tags: ["ดราม่า"], volumesText: "2 เล่มจบ", totalVols: 2, isOngoing: false, cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop" }
+            { code: "FM2002", title: "นิทานพันดาว", author: "Bacteria", publisher: "EverY", category: "BL", tags: ["ดราม่า", "มาใหม่"], volumesText: "2 เล่มจบ", totalVols: 2, isOngoing: false, cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop" }
         ];
 
-        let cart = []; // เก็บสินค้าในตะกร้า
+        let cart = [];
         let currentBook = null;
         let currentFilter = 'ทั้งหมด';
 
-        // 1. ระบบจัดหน้าหมวดหมู่
+        // --- ระบบสลับหน้าเว็บ (Tab Navigation) ---
+        function switchTab(tabName) {
+            const homeView = document.getElementById('homeView');
+            const catalogView = document.getElementById('catalogView');
+            
+            // รีเซ็ตปุ่มทั้งหมด
+            ['home-desktop', 'catalog-desktop', 'home-mobile', 'catalog-mobile'].forEach(id => {
+                const btn = document.getElementById(`tab-${id}`);
+                if(btn) {
+                    if(id.includes('desktop')) {
+                        btn.classList.remove('bg-indigo-800');
+                        btn.classList.add('hover:bg-indigo-600');
+                    } else {
+                        btn.classList.remove('text-indigo-700');
+                        btn.classList.add('text-gray-400');
+                    }
+                }
+            });
+
+            if(tabName === 'home') {
+                homeView.classList.remove('hidden');
+                catalogView.classList.add('hidden');
+                document.getElementById('tab-home-desktop').classList.add('bg-indigo-800');
+                document.getElementById('tab-home-mobile').classList.add('text-indigo-700');
+                document.getElementById('tab-home-mobile').classList.remove('text-gray-400');
+                window.scrollTo(0, 0);
+            } else {
+                homeView.classList.add('hidden');
+                catalogView.classList.remove('hidden');
+                document.getElementById('tab-catalog-desktop').classList.add('bg-indigo-800');
+                document.getElementById('tab-catalog-mobile').classList.add('text-indigo-700');
+                document.getElementById('tab-catalog-mobile').classList.remove('text-gray-400');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // --- สร้างการ์ดหนังสือ ---
+        function createBookCard(book, isHorizontal = false) {
+            const isNew = book.tags.includes('มาใหม่') ? `<div class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white shadow-sm">มาใหม่</div>` : '';
+            const widthClass = isHorizontal ? 'w-36 sm:w-44 flex-shrink-0 snap-start' : '';
+            
+            const card = document.createElement('div');
+            card.className = `bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition flex flex-col ${widthClass}`;
+            card.onclick = () => openBookModal(book);
+            
+            card.innerHTML = `
+                <div class="relative h-48 sm:h-56 bg-gray-100 overflow-hidden">
+                    ${isNew}
+                    <img src="${book.cover}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <span class="text-white text-[11px] font-medium">${book.volumesText}</span>
+                    </div>
+                </div>
+                <div class="p-3 flex flex-col flex-grow">
+                    <h3 class="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight mb-1">${book.title}</h3>
+                    <p class="text-[11px] text-gray-500 mb-2">${book.author}</p>
+                    <div class="mt-auto pt-2 border-t border-gray-100 flex justify-between items-center text-[11px] font-mono">
+                        <span class="text-indigo-600 font-semibold">${book.code}</span>
+                        <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-600">${book.category}</span>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // --- เรนเดอร์หน้าแรก (ดึงมาใหม่ & ฮิต) ---
+        function renderHome() {
+            const newRow = document.getElementById('newArrivalsRow');
+            const hitRow = document.getElementById('trendingRow');
+            newRow.innerHTML = ''; hitRow.innerHTML = '';
+
+            books.filter(b => b.tags.includes('มาใหม่')).forEach(b => newRow.appendChild(createBookCard(b, true)));
+            books.filter(b => b.tags.includes('ฮิต')).forEach(b => hitRow.appendChild(createBookCard(b, true)));
+        }
+
+        // --- เรนเดอร์หน้าแคตตาล็อก ---
         function filterBooks(category) {
             currentFilter = category;
-            
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('bg-indigo-700', 'text-white');
                 btn.classList.add('bg-gray-100', 'text-gray-700');
@@ -154,10 +283,10 @@
             activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
             activeBtn.classList.add('bg-indigo-700', 'text-white');
 
-            renderBooks();
+            renderCatalog();
         }
 
-        function renderBooks() {
+        function renderCatalog() {
             const grid = document.getElementById('bookGrid');
             grid.innerHTML = '';
             
@@ -167,35 +296,10 @@
             if (currentFilter === 'กำลังออก') filtered = books.filter(b => b.isOngoing);
             if (currentFilter === 'BL') filtered = books.filter(b => b.category === 'BL');
 
-            filtered.forEach(book => {
-                const isNew = book.tags.includes('มาใหม่') ? `<div class="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white shadow-sm">มาใหม่</div>` : '';
-                
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition flex flex-col";
-                card.onclick = () => openBookModal(book);
-                
-                card.innerHTML = `
-                    <div class="relative h-48 sm:h-56 bg-gray-100 overflow-hidden">
-                        ${isNew}
-                        <img src="${book.cover}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-                        <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2">
-                            <span class="text-white text-[11px] font-medium">${book.volumesText}</span>
-                        </div>
-                    </div>
-                    <div class="p-3 flex flex-col flex-grow">
-                        <h3 class="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight mb-1">${book.title}</h3>
-                        <p class="text-[11px] text-gray-500 mb-2">${book.author}</p>
-                        <div class="mt-auto pt-2 border-t border-gray-100 flex justify-between items-center text-[11px] font-mono">
-                            <span class="text-indigo-600 font-semibold">${book.code}</span>
-                            <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-600">${book.category}</span>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+            filtered.forEach(book => grid.appendChild(createBookCard(book, false)));
         }
 
-        // 2. ระบบ Modal เลือกหนังสือและเฉพาะเล่ม
+        // --- ส่วนการทำงาน Modal และตะกร้า (เหมือนเดิม) ---
         function openBookModal(book) {
             currentBook = book;
             document.getElementById('modalCover').src = book.cover;
@@ -204,72 +308,43 @@
             document.getElementById('modalAuthor').textContent = book.author;
             document.getElementById('modalPub').textContent = book.publisher;
 
-            const tagsHTML = book.tags.map(tag => `<span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-[11px] font-medium">${tag}</span>`).join('');
+            const tagsHTML = book.tags.map(tag => `<span class="inline-block px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded text-[11px] font-medium">${tag}</span>`).join('');
             document.getElementById('modalTagsBox').innerHTML = tagsHTML;
 
             const optionsContainer = document.getElementById('rentalOptionsContainer');
-            optionsContainer.innerHTML = '';
-
-            // ถ้ามีเล่มเดียวจบ
             if(book.totalVols === 1) {
-                optionsContainer.innerHTML = `
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="radio" name="rentType" value="full" checked class="text-indigo-600 focus:ring-indigo-500 w-4 h-4">
-                        <span class="text-sm font-medium">เช่าทั้งเรื่อง (1 เล่มจบ)</span>
-                    </label>
-                `;
+                optionsContainer.innerHTML = `<label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="rentType" value="full" checked class="text-indigo-600 focus:ring-indigo-500 w-4 h-4"><span class="text-sm font-medium">เช่าทั้งเรื่อง (1 เล่มจบ)</span></label>`;
             } else {
-                // ถ้ามีหลายเล่ม ให้เลือกได้ว่าจะเหมา หรือ แยกเล่ม
                 let checkboxesHTML = '';
                 for(let i=1; i<=book.totalVols; i++) {
-                    checkboxesHTML += `
-                        <label class="flex items-center space-x-2 cursor-pointer bg-white border border-gray-200 px-3 py-2 rounded">
-                            <input type="checkbox" name="volCheck" value="${i}" class="text-indigo-600 rounded">
-                            <span class="text-sm">เล่ม ${i}</span>
-                        </label>
-                    `;
+                    checkboxesHTML += `<label class="flex items-center space-x-2 cursor-pointer bg-white border border-gray-200 px-3 py-2 rounded"><input type="checkbox" name="volCheck" value="${i}" class="text-indigo-600 rounded"><span class="text-sm">เล่ม ${i}</span></label>`;
                 }
-
                 optionsContainer.innerHTML = `
-                    <label class="flex items-center space-x-2 cursor-pointer mb-3">
-                        <input type="radio" name="rentType" value="full" checked onchange="toggleVolSelection(false)" class="text-indigo-600 w-4 h-4">
-                        <span class="text-sm font-medium">เช่าทั้งเรื่อง (${book.volumesText})</span>
-                    </label>
-                    
-                    <label class="flex items-center space-x-2 cursor-pointer mb-2">
-                        <input type="radio" name="rentType" value="partial" onchange="toggleVolSelection(true)" class="text-indigo-600 w-4 h-4">
-                        <span class="text-sm font-medium">เลือกเฉพาะบางเล่ม</span>
-                    </label>
-                    
-                    <div id="volSelectionBox" class="grid grid-cols-2 gap-2 pl-6 hidden opacity-50 transition-opacity">
-                        ${checkboxesHTML}
-                    </div>
+                    <label class="flex items-center space-x-2 cursor-pointer mb-3"><input type="radio" name="rentType" value="full" checked onchange="toggleVolSelection(false)" class="text-indigo-600 w-4 h-4"><span class="text-sm font-medium">เช่าทั้งเรื่อง (${book.volumesText})</span></label>
+                    <label class="flex items-center space-x-2 cursor-pointer mb-2"><input type="radio" name="rentType" value="partial" onchange="toggleVolSelection(true)" class="text-indigo-600 w-4 h-4"><span class="text-sm font-medium">เลือกเฉพาะบางเล่ม</span></label>
+                    <div id="volSelectionBox" class="grid grid-cols-2 gap-2 pl-6 hidden opacity-50 transition-opacity">${checkboxesHTML}</div>
                 `;
             }
 
             document.getElementById('bookModal').classList.remove('hidden');
             document.getElementById('bookModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
 
         function toggleVolSelection(show) {
             const box = document.getElementById('volSelectionBox');
             if(box) {
-                if(show) {
-                    box.classList.remove('hidden', 'opacity-50');
-                    box.classList.add('opacity-100');
-                } else {
-                    box.classList.add('opacity-50');
-                    setTimeout(() => box.classList.add('hidden'), 200);
-                }
+                if(show) { box.classList.remove('hidden', 'opacity-50'); box.classList.add('opacity-100'); }
+                else { box.classList.add('opacity-50'); setTimeout(() => box.classList.add('hidden'), 200); }
             }
         }
 
         function closeBookModal() {
             document.getElementById('bookModal').classList.add('hidden');
             document.getElementById('bookModal').classList.remove('flex');
+            document.body.style.overflow = 'auto';
         }
 
-        // 3. ระบบตะกร้าสินค้า
         function addToCart() {
             const rentType = document.querySelector('input[name="rentType"]:checked').value;
             let selectedVols = [];
@@ -277,64 +352,49 @@
             if (rentType === 'full') {
                 for(let i=1; i<=currentBook.totalVols; i++) selectedVols.push(i);
             } else {
-                document.querySelectorAll('input[name="volCheck"]:checked').forEach(cb => {
-                    selectedVols.push(parseInt(cb.value));
-                });
-                if(selectedVols.length === 0) {
-                    alert("กรุณาเลือกเล่มที่ต้องการเช่าอย่างน้อย 1 เล่มครับ");
-                    return;
-                }
+                document.querySelectorAll('input[name="volCheck"]:checked').forEach(cb => selectedVols.push(parseInt(cb.value)));
+                if(selectedVols.length === 0) { alert("กรุณาเลือกเล่มที่ต้องการเช่าอย่างน้อย 1 เล่มครับ"); return; }
             }
 
-            // เพิ่มลงตะกร้า (ถ้ามีเรื่องเดิมอยู่แล้ว ให้ถือว่าอัปเดตเล่มใหม่)
             const existingIndex = cart.findIndex(item => item.code === currentBook.code);
             if (existingIndex > -1) {
                 cart[existingIndex].vols = selectedVols;
                 cart[existingIndex].type = rentType;
             } else {
-                cart.push({
-                    code: currentBook.code,
-                    title: currentBook.title,
-                    totalVols: currentBook.totalVols,
-                    vols: selectedVols,
-                    type: rentType
-                });
+                cart.push({ code: currentBook.code, title: currentBook.title, totalVols: currentBook.totalVols, vols: selectedVols, type: rentType });
             }
 
-            updateCartBadge();
-            closeBookModal();
-            
-            // เด้ง Alert เล็กๆ ยืนยัน
-            const toast = document.createElement('div');
-            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50 opacity-0 transition-opacity";
-            toast.textContent = "หยิบใส่ตะกร้าเรียบร้อย";
-            document.body.appendChild(toast);
-            setTimeout(() => toast.classList.remove('opacity-0'), 100);
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 2000);
-        }
-
-        function updateCartBadge() {
             let totalBooks = cart.reduce((sum, item) => sum + item.vols.length, 0);
             document.getElementById('cartCount').textContent = totalBooks;
+            
+            closeBookModal();
+            
+            // Toast Notification
+            const toast = document.createElement('div');
+            toast.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-5 py-2.5 rounded-full text-sm shadow-xl z-50 opacity-0 transition-opacity flex items-center gap-2";
+            toast.innerHTML = `<svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> ใส่ตะกร้าเรียบร้อย`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.remove('opacity-0'), 10);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 2000);
         }
 
         function openCart() {
             renderCartItems();
             document.getElementById('cartModal').classList.remove('hidden');
             document.getElementById('cartModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeCart() {
             document.getElementById('cartModal').classList.add('hidden');
             document.getElementById('cartModal').classList.remove('flex');
+            document.body.style.overflow = 'auto';
         }
 
         function removeItem(code) {
             cart = cart.filter(item => item.code !== code);
-            updateCartBadge();
+            let totalBooks = cart.reduce((sum, item) => sum + item.vols.length, 0);
+            document.getElementById('cartCount').textContent = totalBooks;
             renderCartItems();
         }
 
@@ -354,7 +414,7 @@
                         <div class="cart-item flex justify-between items-center p-4 border-b border-gray-100">
                             <div class="w-4/5 pr-2">
                                 <p class="text-sm font-semibold text-gray-800 line-clamp-1">${item.title}</p>
-                                <p class="text-xs text-gray-500 mt-1"><span class="font-mono text-indigo-600">${item.code}</span> • ${detailText} (${item.vols.length} เล่ม)</p>
+                                <p class="text-xs text-gray-500 mt-1"><span class="font-mono text-indigo-600">${item.code}</span> • ${detailText} <span class="font-bold text-gray-700">(${item.vols.length} เล่ม)</span></p>
                             </div>
                             <button onclick="removeItem('${item.code}')" class="text-red-400 hover:text-red-600 p-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -365,25 +425,20 @@
                 container.innerHTML = html;
             }
 
-            // คำนวณราคาโปรโมชัน
             document.getElementById('totalBooksCount').textContent = totalBooks;
             let price = 0;
             if (totalBooks > 0) {
                 if (totalBooks >= 5) {
-                    price = 150 + ((totalBooks - 5) * 30); // โปร 5 เล่ม 150, เล่มต่อไปคิด 30 บาท
+                    price = 150 + ((totalBooks - 5) * 30);
                 } else {
-                    price = totalBooks * 35; // เรทปกติ
+                    price = totalBooks * 35;
                 }
             }
             document.getElementById('totalPrice').textContent = price.toLocaleString();
         }
 
-        // 4. สรุปยอดและส่งเข้า LINE
         function checkoutToLINE() {
-            if (cart.length === 0) {
-                alert("ไม่มีหนังสือในตะกร้าครับ");
-                return;
-            }
+            if (cart.length === 0) { alert("ไม่มีหนังสือในตะกร้าครับ"); return; }
 
             let message = `🛒 สรุปรายการขอเช่านิยาย\n\n`;
             let totalBooks = 0;
@@ -397,13 +452,14 @@
             let price = document.getElementById('totalPrice').textContent;
             message += `\n📚 จำนวนรวม: ${totalBooks} เล่ม\n💰 ยอดประเมินค่าเช่า: ${price} บาท\n\nรบกวนแอดมินเช็คคิวว่างให้หน่อยนะคะ`;
 
-            const lineOA_ID = "@265vgmtu";
+            const lineOA_ID = "@265vgmtu"; // ไอดีไลน์ร้านคุณ
             const encodedMessage = encodeURIComponent(message);
             window.location.href = `https://line.me/R/oaMessage/${lineOA_ID}/?${encodedMessage}`;
         }
 
-        // เริ่มต้นโหลด
-        renderBooks();
+        // เริ่มต้นการทำงานตอนโหลดเว็บเสร็จ
+        renderHome();
+        renderCatalog();
     </script>
 </body>
 </html>
